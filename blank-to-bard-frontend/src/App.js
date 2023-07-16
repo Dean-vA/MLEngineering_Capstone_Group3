@@ -24,13 +24,35 @@ function App() {
           audioChunks.push(event.data);
         });
 
-        mediaRecorderRef.current.addEventListener("stop", () => {
+        mediaRecorderRef.current.addEventListener("stop", async () => {
           const audioBlob = new Blob(audioChunks);
           const audioUrl = URL.createObjectURL(audioBlob);
           setAudioURL(audioUrl);
 
           // Here, you could create a new FormData instance and append the audioBlob as a file,
           // then send the FormData with a fetch() or axios request to your speech-to-text API.
+          // Define the audio variable
+          const audio = new File([audioBlob], "audio.mp3", { type: "audio/mpeg" });
+          // Create a new FormData instance
+          var data = new FormData();
+          
+          // Add the audio file to the form data
+          data.append('audio', audio);
+
+          // Use fetch to send the audio file to your server
+          await fetch(`${process.env.REACT_APP_API_URL}/transcribe`, {
+            method: 'POST',
+            body: data,
+          })
+          .then(response => response.json())
+          .then(result => {
+            console.log('Success:', result);
+            // Set the transcribed text in the state
+            setInput(result.transcription);
+          })
+          .catch(error => {
+            console.error('Error:', error);
+          });
         });
       });
   };
@@ -41,7 +63,7 @@ function App() {
       setRecording(false);
       // Get the MediaStreamTracks and stop each one.
       mediaRecorderRef.current.stream.getTracks().forEach(track => {
-        track.stop();
+          track.stop();
       });
     }
   };
