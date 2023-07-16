@@ -39,6 +39,10 @@ function App() {
     if (mediaRecorderRef.current) {
       mediaRecorderRef.current.stop();
       setRecording(false);
+      // Get the MediaStreamTracks and stop each one.
+      mediaRecorderRef.current.stream.getTracks().forEach(track => {
+        track.stop();
+      });
     }
   };
 
