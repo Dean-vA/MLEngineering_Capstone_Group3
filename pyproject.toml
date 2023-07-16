@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "mlengineering-capstone-group3"
+name = "blank-to-bard"
 version = "0.1.0"
 description = ""
 authors = ["Dean <deanvanaswegen.dva@gmail.com>",
@@ -7,7 +7,7 @@ authors = ["Dean <deanvanaswegen.dva@gmail.com>",
             "Louis <louis.sanna@gmail.com>",
             "Charles <fzy1995@gmail.com>"]
 readme = "README.md"
-packages = [{include = "mlengineering_capstone_group3", from = "src"}]
+packages = [{include = "blank-to-bard", from = "src"}]
 
 [tool.poetry.dependencies]
 python = "^3.9"
