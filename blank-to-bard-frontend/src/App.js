@@ -10,6 +10,7 @@ function App() {
   const mediaRecorderRef = useRef(null); 
   
   const handleStartRecording = () => {
+    setOutput("" );
     // Create a new MediaRecorder instance.
     navigator.mediaDevices.getUserMedia({ audio: true })
       .then(stream => {
@@ -33,6 +34,7 @@ function App() {
           // then send the FormData with a fetch() or axios request to your speech-to-text API.
           // Define the audio variable
           const audio = new File([audioBlob], "audio.mp3", { type: "audio/mpeg" });
+
           // Create a new FormData instance
           var data = new FormData();
           
@@ -40,7 +42,8 @@ function App() {
           data.append('audio', audio);
 
           // Use fetch to send the audio file to your server
-          await fetch(`${process.env.REACT_APP_API_URL}/transcribe`, {
+          //await fetch(`${process.env.REACT_APP_STT_APP_API_URL}/transcribe`, {
+            await fetch(`https://ssttopenaiapi-bi2gia7neq-ez.a.run.app/transcribe`, {
             method: 'POST',
             body: data,
           })
@@ -52,6 +55,7 @@ function App() {
           })
           .catch(error => {
             console.error('Error:', error);
+            setOutput(error.message);
           });
         });
       });
