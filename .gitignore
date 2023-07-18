@@ -2,3 +2,6 @@
 .env
 keys
 models
+data/augmented_images/*.png
+data/images/*.png
+
