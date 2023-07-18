@@ -3,3 +3,4 @@
 .keys
 data/augmented_images/*.png
 data/images/*.png
+.models
