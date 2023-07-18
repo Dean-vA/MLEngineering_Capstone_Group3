@@ -8,6 +8,8 @@ function App() {
   const [recording, setRecording] = useState(false);
   const [audioURL, setAudioURL] = useState("");
   const mediaRecorderRef = useRef(null); 
+  const [language, setLanguage] = useState('en');
+
   
   const handleStartRecording = () => {
     setOutput("" );
@@ -43,7 +45,7 @@ function App() {
 
           // Use fetch to send the audio file to your server
           //await fetch(`${process.env.REACT_APP_STT_APP_API_URL}/transcribe`, {
-            await fetch(`https://ssttopenaiapi-bi2gia7neq-ez.a.run.app/transcribe`, {
+            await fetch(`https://ssttopenaiapi-bi2gia7neq-ez.a.run.app/transcribe/${language}`, {
             method: 'POST',
             body: data,
           })
@@ -114,7 +116,12 @@ function App() {
         </a> */}
       </header>
       <h1>Input Text Here</h1>
-
+      <select value={language} onChange={event => setLanguage(event.target.value)}>
+        <option value="en">English</option>
+        <option value="fr">French</option>
+        <option value="de">German</option>
+        <option value="nl">Dutch</option>
+      </select>
       <div className="input-group">
         <textarea value={input} onChange={handleInputChange} onFocus={handleInputFocus} style={inputStyle} rows="10" cols="50" />
       </div>
