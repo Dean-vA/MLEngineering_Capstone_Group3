@@ -6,7 +6,7 @@ from blank_to_bard.binary_classifier_predictor import CustomPredictor
 app = FastAPI()
 
 predictor = CustomPredictor()
-predictor.load('gs://blank-to-bard/model/saved_model/1/')
+predictor.load('gs://blank-to-bard-models/binary_classifier/')
 #predictor.load(r'C:\Users\aswegen.d\Dropbox\0_Buas\Courses\ML Engineering Masterclass\Capstone\MLEngineering_Capstone_Group3\models\binary_classifier')
 
 # Add CORS middleware

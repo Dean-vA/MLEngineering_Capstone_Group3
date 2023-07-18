@@ -16,10 +16,6 @@ WORKDIR /app
 # # Install poetry and dependencies
 # RUN pip install poetry
 # RUN poetry config virtualenvs.create false
-
-COPY ./src /app
-COPY .env /app
-
 # RUN poetry install --no-dev
 # RUN poetry shell
 RUN pip install fastapi
@@ -29,7 +25,10 @@ RUN pip install openai
 RUN pip install python-dotenv
 # RUN pip install openai-whisper
 
-ENV PYTHONUNBUFFERED=TRUE
+ENV PYTHONUNBUFFERED=
+
+COPY ./src /app
+COPY .env /app
 
 # start an interactive bash session
 # ENTRYPOINT ["/bin/bash"]

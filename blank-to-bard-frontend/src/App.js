@@ -69,6 +69,9 @@ function App() {
       mediaRecorderRef.current.stream.getTracks().forEach(track => {
           track.stop();
       });
+      
+      // Re-enable the button by setting the recording state to false
+      //setRecording(false);
     }
   };
 
@@ -122,12 +125,19 @@ function App() {
 
       <div>
       <div>
-        <button onClick={handleStartRecording} disabled={recording}>
-          Start recording
+        <button
+          className={`recording-button ${recording ? 'recording' : ''}`} 
+          //onClick={handleStartRecording} disabled={recording}
+          onMouseDown={handleStartRecording}
+          onMouseUp={handleStopRecording}
+          onTouchStart={handleStartRecording}
+          onTouchEnd={handleStopRecording}
+          >
+          {/* {recording ? 'Release to stop' : 'Push to talk'} */}
         </button>
-        <button onClick={handleStopRecording} disabled={!recording}>
+        {/* <button onClick={handleStopRecording} disabled={!recording}>
           Stop recording
-        </button>
+        </button> */}
       </div>
       <div>
         {audioURL && <audio src={audioURL} controls />}
@@ -136,6 +146,7 @@ function App() {
 
       <h1>Output</h1>
       <p>{output}</p>
+      {recording ? 'Release to stop' : 'Push to talk'}
     </div>
   );
 }

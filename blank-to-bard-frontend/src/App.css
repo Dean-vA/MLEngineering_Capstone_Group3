@@ -43,6 +43,27 @@
   margin: 10px 0;
 }
 
+.recording-button {
+  margin-bottom: 20px;
+  margin-top: 20px;
+  background-color: red;
+  border: 7px solid white; /* This creates the white ring */
+  box-shadow: 0 0 0 7px red, 
+              0px 10px 20px rgba(0, 0, 0, 0.3); /* This creates the outer red ring and a drop shadow */
+  border-radius: 50%;
+  width: 80px;
+  height: 80px;
+  transition: transform 0.3s ease-in-out;
+}
+
+.recording-button.recording {
+  transform: scale(0.9);
+  border-color: white;
+  box-shadow: 0 0 0 7px rgb(175, 77, 77), 
+              0px 10px 20px rgba(0, 0, 0, 0.3);
+  background-color: rgb(255, 98, 98);
+}
+
 
 @keyframes App-logo-spin {
   from {
