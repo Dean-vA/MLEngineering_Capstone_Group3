@@ -7,7 +7,7 @@ authors = ["Dean <deanvanaswegen.dva@gmail.com>",
             "Louis <louis.sanna@gmail.com>",
             "Charles <fzy1995@gmail.com>"]
 readme = "README.md"
-packages = [{include = "blank-to-bard", from = "src"}]
+packages = [{include = "blank_to_bard", from = "src"}]
 
 [tool.poetry.dependencies]
 python = ">=3.9,<3.12"
@@ -23,6 +23,9 @@ transformers = "^4.30.2"
 tensorflow = "^2.13.0"
 docker = "^6.1.3"
 openai = "^0.27.8"
+
+[tool.poetry.group.dev.dependencies]
+ipykernel = "^6.24.0"
 
 [build-system]
 requires = ["poetry-core"]
