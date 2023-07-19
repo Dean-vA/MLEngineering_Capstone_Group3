@@ -2,6 +2,6 @@
 .env
 keys
 models
-data/augmented_images/*.png
-data/images/*.png
-
+images/positive/*.png
+images/negative/*.png
+train
