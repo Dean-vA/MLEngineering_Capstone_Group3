@@ -23,15 +23,15 @@ app.add_middleware(
 async def root():
     return {"message": "Welcome to Whisper STT API!"}
 
-@app.post("/transcribe")
-async def transcribe_audio(audio: UploadFile = File(...)):
+@app.post("/transcribe/{language}")
+async def transcribe_audio(audio: UploadFile = File(...), language: str = "en"):
     # Save temporary audio file
     with open("temp_audio.mp3", "wb") as buffer:
         buffer.write(await audio.read())
 
      # Transcribe the audio
     with open("temp_audio.mp3", "rb") as audio_file:
-        result = openai.Audio.transcribe("whisper-1", audio_file)
+        result = openai.Audio.transcribe("whisper-1", audio_file, language=language)
 
     return {"transcription": result["text"]}
 

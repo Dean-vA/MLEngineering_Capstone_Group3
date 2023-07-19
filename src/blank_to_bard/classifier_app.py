@@ -3,11 +3,17 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from blank_to_bard.binary_classifier_predictor import CustomPredictor
 
+from pydantic import BaseModel
+from typing import List, Dict
+
+class RequestModel(BaseModel):
+    instances: List[Dict[str, str]]
+
 app = FastAPI()
 
 predictor = CustomPredictor()
-predictor.load('gs://blank-to-bard/model/saved_model/1/')
-#predictor.load(r'C:\Users\aswegen.d\Dropbox\0_Buas\Courses\ML Engineering Masterclass\Capstone\MLEngineering_Capstone_Group3\models\binary_classifier')
+predictor.load('gs://blank-to-bard-models/binary_classifier/')
+# predictor.load(r'C:\Users\aswegen.d\Dropbox\0_Buas\Courses\ML Engineering Masterclass\Capstone\MLEngineering_Capstone_Group3\models\binary_classifier')
 
 # Add CORS middleware
 app.add_middleware(
@@ -29,10 +35,12 @@ def health_check():
 
 
 @app.post("/predict")
-async def predict(text: str):
-    string_input = {"instances": [text]}
-    prediction = predictor.postprocess(predictor.predict(predictor.preprocess(string_input)))
+async def predict(request: RequestModel):
+    print(request)
+    print(request.instances)
+    prediction = predictor.postprocess(predictor.predict(predictor.preprocess(request.instances)))
     return {"predictions": [prediction]}
+
 
 if __name__ == "__main__":
     import uvicorn

@@ -2,10 +2,10 @@ from google.cloud import aiplatform
 
 # Provide your bucket name and file name
 bucket_name = 'blank-to-bard-models'
-model_path = 'english-dataset.csv'
+model_path = 'binary_classifier'
 
 # Define your project ID and model name
-project_id = 'ml-class-group-3-capstone'
+project_id = 'nodal-magnet-392617'
 model_name = 'blank-to-bard-classifier'
 container_image_uri = 'europe-west4-docker.pkg.dev/nodal-magnet-392617/deanis/blanktobard-classifier:latest'
 location = 'europe-west4'   
@@ -16,7 +16,7 @@ def import_model(project_id, location, model_display_name, serving_container_ima
 
     model = {
         "display_name": model_display_name,
-        "metadata_schema_uri": "gs://google-cloud-aiplatform/schema/trainingjob/definition/custom_task_1.0.0.yaml",
+        #"metadata_schema_uri": "gs://google-cloud-aiplatform/schema/trainingjob/definition/custom_task_1.0.0.yaml",
         "artifact_uri": artifact_uri,
         "container_spec": {
             "image_uri": serving_container_image_uri,
@@ -24,8 +24,8 @@ def import_model(project_id, location, model_display_name, serving_container_ima
             "args": [],
             "env": [],
             "ports": [{"container_port": 8080}],
-            "predict_route": "",
-            "health_route": "",
+            "predict_route": "/predict",
+            "health_route": "/health",
         },
     }
 

@@ -8,6 +8,8 @@ function App() {
   const [recording, setRecording] = useState(false);
   const [audioURL, setAudioURL] = useState("");
   const mediaRecorderRef = useRef(null); 
+  const [language, setLanguage] = useState('en');
+
   
   const handleStartRecording = () => {
     setOutput("" );
@@ -43,7 +45,7 @@ function App() {
 
           // Use fetch to send the audio file to your server
           //await fetch(`${process.env.REACT_APP_STT_APP_API_URL}/transcribe`, {
-            await fetch(`https://ssttopenaiapi-bi2gia7neq-ez.a.run.app/transcribe`, {
+            await fetch(`https://ssttopenaiapi-bi2gia7neq-ez.a.run.app/transcribe/${language}`, {
             method: 'POST',
             body: data,
           })
@@ -69,6 +71,9 @@ function App() {
       mediaRecorderRef.current.stream.getTracks().forEach(track => {
           track.stop();
       });
+      
+      // Re-enable the button by setting the recording state to false
+      //setRecording(false);
     }
   };
 
@@ -83,10 +88,40 @@ function App() {
   };
 
   const handleSubmit = () => {
+    const url = 'https://europe-west4-aiplatform.googleapis.com/v1/projects/260219834114/locations/europe-west4/endpoints/5000042321450893312:predict';
+    const accessToken = 'ya29.a0AbVbY6NPgBBzIjcpM8FtkWCMiOszpWUN7Qq5q3tcqbBnQQq10TFGcs7nq1Xq9O5aFPeOVWg1sFIFIcTpNuYXAeR1dNBe6LapuP1xXoGqEhy6yT3rMlqzUL5hZ1OK5USjqW3UIJ-oQRgujxJGstNPUNu80D2WUqKBXxpBMQaCgYKAZMSARMSFQFWKvPlgCynqNFmpLwDXYo59lMp8Q0173'
+    const data = {
+      instances: [
+        {
+          text: input
+        }
+      ]
+    };
+
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    })
+    .then((response) => response.json())
+    .then((data) => {
+      const prediction = data.predictions[0];
+      const verdict = prediction.label;
+      const confidence = prediction.score;
+
+      setOutput(`Verdict: ${verdict} ---> confidence: ${confidence}`);
+    })
+    .catch((error) => {
+      console.error('Error:', error);
+      setOutput('Error occurred while making prediction.');
+    });
     // TODO: Call API here with the user input, and update the output state with the response.
 
     // For now, let's just echo the user input in the output.
-    setOutput(input);
+    //setOutput(input);
   };
 
   const inputStyle = {
@@ -111,9 +146,14 @@ function App() {
         </a> */}
       </header>
       <h1>Input Text Here</h1>
-
+      <select value={language} onChange={event => setLanguage(event.target.value)}>
+        <option value="en">English</option>
+        <option value="fr">French</option>
+        <option value="de">German</option>
+        <option value="nl">Dutch</option>
+      </select>
       <div className="input-group">
-        <textarea value={input} onChange={handleInputChange} onFocus={handleInputFocus} style={inputStyle} rows="10" cols="50" />
+        <textarea value={input} onChange={handleInputChange} onFocus={handleInputFocus} style={inputStyle} rows="5" cols="50" />
       </div>
       
       <div className="button-group">
@@ -122,21 +162,28 @@ function App() {
 
       <div>
       <div>
-        <button onClick={handleStartRecording} disabled={recording}>
-          Start recording
+        <button
+          className={`recording-button ${recording ? 'recording' : ''}`} 
+          //onClick={handleStartRecording} disabled={recording}
+          onMouseDown={handleStartRecording}
+          onMouseUp={handleStopRecording}
+          onTouchStart={handleStartRecording}
+          onTouchEnd={handleStopRecording}
+          >
+          {/* {recording ? 'Release to stop' : 'Push to talk'} */}
         </button>
-        <button onClick={handleStopRecording} disabled={!recording}>
+        {/* <button onClick={handleStopRecording} disabled={!recording}>
           Stop recording
-        </button>
+        </button> */}
       </div>
+      <p>{recording ? 'Release to stop' : 'Push to talk'}</p>
       <div>
         {audioURL && <audio src={audioURL} controls />}
       </div>
-    </div>
-
-      <h1>Output</h1>
-      <p>{output}</p>
-    </div>
+      </div>
+        <h1>Output</h1>
+        <p>{output}</p>
+      </div>
   );
 }
 
