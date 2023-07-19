@@ -1,6 +1,6 @@
 .venv
 .env
-.keys
-data/augmented_images/*.png
-data/images/*.png
-.models
+keys
+models
+images/positive/*.png
+images/negative/*.png
