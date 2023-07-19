@@ -88,10 +88,40 @@ function App() {
   };
 
   const handleSubmit = () => {
+    const url = 'https://europe-west4-aiplatform.googleapis.com/v1/projects/260219834114/locations/europe-west4/endpoints/5000042321450893312:predict';
+    const accessToken = 'ya29.a0AbVbY6NPgBBzIjcpM8FtkWCMiOszpWUN7Qq5q3tcqbBnQQq10TFGcs7nq1Xq9O5aFPeOVWg1sFIFIcTpNuYXAeR1dNBe6LapuP1xXoGqEhy6yT3rMlqzUL5hZ1OK5USjqW3UIJ-oQRgujxJGstNPUNu80D2WUqKBXxpBMQaCgYKAZMSARMSFQFWKvPlgCynqNFmpLwDXYo59lMp8Q0173'
+    const data = {
+      instances: [
+        {
+          text: input
+        }
+      ]
+    };
+
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    })
+    .then((response) => response.json())
+    .then((data) => {
+      const prediction = data.predictions[0];
+      const verdict = prediction.label;
+      const confidence = prediction.score;
+
+      setOutput(`Verdict: ${verdict} ---> confidence: ${confidence}`);
+    })
+    .catch((error) => {
+      console.error('Error:', error);
+      setOutput('Error occurred while making prediction.');
+    });
     // TODO: Call API here with the user input, and update the output state with the response.
 
     // For now, let's just echo the user input in the output.
-    setOutput(input);
+    //setOutput(input);
   };
 
   const inputStyle = {
@@ -123,7 +153,7 @@ function App() {
         <option value="nl">Dutch</option>
       </select>
       <div className="input-group">
-        <textarea value={input} onChange={handleInputChange} onFocus={handleInputFocus} style={inputStyle} rows="10" cols="50" />
+        <textarea value={input} onChange={handleInputChange} onFocus={handleInputFocus} style={inputStyle} rows="5" cols="50" />
       </div>
       
       <div className="button-group">
@@ -146,15 +176,14 @@ function App() {
           Stop recording
         </button> */}
       </div>
+      <p>{recording ? 'Release to stop' : 'Push to talk'}</p>
       <div>
         {audioURL && <audio src={audioURL} controls />}
       </div>
-    </div>
-
-      <h1>Output</h1>
-      <p>{output}</p>
-      {recording ? 'Release to stop' : 'Push to talk'}
-    </div>
+      </div>
+        <h1>Output</h1>
+        <p>{output}</p>
+      </div>
   );
 }
 

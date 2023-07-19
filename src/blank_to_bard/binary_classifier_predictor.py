@@ -1,5 +1,5 @@
 from transformers import DistilBertTokenizer, TFDistilBertForSequenceClassification
-from typing import Dict
+from typing import Dict, List
 import tensorflow as tf
 import keras
 import numpy as np
@@ -30,7 +30,7 @@ class CustomPredictor(Predictor):
         self._model = keras.models.load_model('./')  
         self._tokenizer = DistilBertTokenizer.from_pretrained('distilbert-base-uncased')
 
-    def preprocess(self, prediction_input: Dict) -> Dict[str, tf.Tensor]:
+    def preprocess(self, prediction_input: List[Dict]) -> Dict[str, tf.Tensor]:
         """Preprocesses the prediction input before doing the prediction.
         Args:
             prediction_input (Any):
@@ -38,10 +38,9 @@ class CustomPredictor(Predictor):
         Returns:
             The preprocessed prediction input.
         """
-        instances = prediction_input["instances"]
-        tokenizer = self._tokenizer
+        instances = prediction_input[0]['text']#[instance['text'] for instance in prediction_input]
         # Tokenize the text
-        inputs = tokenizer(instances, truncation=True, padding=True, return_tensors="tf")
+        inputs = self._tokenizer(instances, truncation=True, padding=True, return_tensors="tf")
         return inputs
 
     def predict(self, inputs: Dict[str, tf.Tensor]) -> np.ndarray:
