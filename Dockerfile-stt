@@ -25,7 +25,7 @@ RUN pip install openai
 RUN pip install python-dotenv
 # RUN pip install openai-whisper
 
-ENV PYTHONUNBUFFERED=
+ENV PYTHONUNBUFFERED=TRUE
 
 COPY ./src /app
 COPY .env /app

@@ -88,20 +88,12 @@ function App() {
   };
 
   const handleSubmit = () => {
-    const url = 'https://europe-west4-aiplatform.googleapis.com/v1/projects/260219834114/locations/europe-west4/endpoints/5000042321450893312:predict';
-    const accessToken = 'ya29.a0AbVbY6NPgBBzIjcpM8FtkWCMiOszpWUN7Qq5q3tcqbBnQQq10TFGcs7nq1Xq9O5aFPeOVWg1sFIFIcTpNuYXAeR1dNBe6LapuP1xXoGqEhy6yT3rMlqzUL5hZ1OK5USjqW3UIJ-oQRgujxJGstNPUNu80D2WUqKBXxpBMQaCgYKAZMSARMSFQFWKvPlgCynqNFmpLwDXYo59lMp8Q0173'
-    const data = {
-      instances: [
-        {
-          text: input
-        }
-      ]
-    };
+    const url = 'https://middleman-auth-bi2gia7neq-uc.a.run.app/classifier/predict';
+    const data = {text: input};
 
     fetch(url, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(data),
