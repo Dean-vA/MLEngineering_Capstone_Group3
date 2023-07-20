@@ -5,3 +5,4 @@ models
 images/positive/*.png
 images/negative/*.png
 train
+*.pyc
