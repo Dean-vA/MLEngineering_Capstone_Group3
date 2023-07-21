@@ -45,7 +45,7 @@ function App() {
 
           // Use fetch to send the audio file to your server
           //await fetch(`${process.env.REACT_APP_STT_APP_API_URL}/transcribe`, {
-            await fetch(`https://ssttopenaiapi-bi2gia7neq-ez.a.run.app/transcribe/${language}`, {
+            await fetch(`https://middleman-auth-bi2gia7neq-uc.a.run.app/transcribe/${language}`, {
             method: 'POST',
             body: data,
           })
