@@ -6,7 +6,7 @@ RUN pip install python-dotenv openai
 WORKDIR /app
 
 COPY ./src/blank_to_bard/middleman_auth.py /app
-
+COPY .env /app
 EXPOSE 8000
 
 CMD ["uvicorn", "middleman_auth:app", "--host", "0.0.0.0", "--port", "8000"]
