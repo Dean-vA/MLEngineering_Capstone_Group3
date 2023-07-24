@@ -1,6 +1,6 @@
-import logo from './logo.svg';
-import bardFront from './bard.png';
-import bardBack from './blank.png';
+// import logo from './logo.svg';
+import bardFront from './bard_transparent.png';
+import bardBack from './blank_transparent.png';
 import './App.css';
 import React, { useState, useRef } from "react";
 
@@ -11,7 +11,6 @@ function App() {
   const [audioURL, setAudioURL] = useState("");
   const mediaRecorderRef = useRef(null); 
   const [language, setLanguage] = useState('en');
-
   
   const handleStartRecording = () => {
     setOutput("" );
@@ -47,7 +46,7 @@ function App() {
 
           // Use fetch to send the audio file to your server
           //await fetch(`${process.env.REACT_APP_STT_APP_API_URL}/transcribe`, {
-            await fetch(`https://middleman-auth-bi2gia7neq-uc.a.run.app/transcribe/${language}`, {
+            await fetch(`https://middleman-auth-dlkyfi4jza-uc.a.run.app/transcribe/${language}`, {
             method: 'POST',
             body: data,
           })
@@ -90,7 +89,7 @@ function App() {
   };
 
   const handleSubmit = () => {
-    const url = 'https://middleman-auth-bi2gia7neq-uc.a.run.app/classifier/predict';
+    const url = 'https://middleman-auth-dlkyfi4jza-uc.a.run.app/classifier/predict';
     const data = {text: input};
 
     fetch(url, {
@@ -123,7 +122,19 @@ function App() {
     <div className="App">
       <header className="App-header">
         <h1>Blank to Bard</h1>
-        <img src={logo} className="App-logo" alt="logo" />
+        {/* <img src={logo} className="App-logo" alt="logo" /> */}
+        <div className="flip-card-container">
+          <div className="flip-card">
+            <div className="flip-card-inner">
+              <div className="flip-card-front">
+                <img src={bardFront} alt="Front" style={{width: '100%', height: '100%'}}/>
+              </div>
+              <div className="flip-card-back">
+                <img src={bardBack} alt="Back" style={{width: '100%', height: '100%'}}/>
+              </div>
+            </div>
+          </div>
+        </div>
       </header>
       <h1>Input Text Here</h1>
       <select className="select" value={language} onChange={event => setLanguage(event.target.value)}>
@@ -162,18 +173,6 @@ function App() {
       </div>
         <h1>Output</h1>
         <p>{output}</p>
-      </div>
-      <div className="flip-card-container">
-        <div className="flip-card">
-          <div className="flip-card-inner">
-            <div className="flip-card-front">
-              <img src={bardFront} alt="Front" style={{width: '100%', height: '100%'}}/>
-            </div>
-            <div className="flip-card-back">
-              <img src={bardBack} alt="Back" style={{width: '100%', height: '100%'}}/>
-            </div>
-          </div>
-        </div>
       </div>
       </>
   );

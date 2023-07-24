@@ -20,7 +20,7 @@ class Text(BaseModel):
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://blank-to-bard-frontend-bi2gia7neq-ez.a.run.app"],  # Change this to the actual URL of your frontend
+    allow_origins=["https://blank-to-bard-frontend-dlkyfi4jza-uc.a.run.app"],  # Change this to the actual URL of your frontend
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

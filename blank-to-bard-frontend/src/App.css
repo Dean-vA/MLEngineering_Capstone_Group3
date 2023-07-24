@@ -142,15 +142,16 @@
 }
 
 .flip-card-front {
-  background-color: #bbb;
+  background-color: rgba(0, 0, 0, 0); /* 0 opacity makes it transparent */
   color: black;
 }
 
 .flip-card-back {
-  background-color: #2980b9;
+  background-color: rgba(0, 0, 0, 0); /* 0 opacity makes it transparent */
   color: white;
   transform: rotateY(180deg);
 }
+
 
 .flip-card-container {
   display: flex;
