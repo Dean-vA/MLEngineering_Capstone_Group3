@@ -1,10 +1,13 @@
 import React, { Fragment, useState, useRef } from "react";
+import bard from "./bard_transparent.png";
+import blank from "./blank_transparent.png";
 import { Listbox, Transition } from "@headlessui/react";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
 
 function App() {
-  const [input, setInput] = useState("your text here...");
+  const [input, setInput] = useState("");
   const [output, setOutput] = useState("");
+  const [prediction, setPrediction] = useState(null);
   const [recording, setRecording] = useState(false);
   const [audioURL, setAudioURL] = useState("");
   const mediaRecorderRef = useRef(null);
@@ -84,12 +87,6 @@ function App() {
     setInput(event.target.value);
   };
 
-  const handleInputFocus = (event) => {
-    if (input === "your text here...") {
-      setInput("");
-    }
-  };
-
   const handleSubmit = () => {
     const url =
       "https://middleman-auth-dlkyfi4jza-uc.a.run.app/classifier/predict";
@@ -108,7 +105,8 @@ function App() {
         const verdict = prediction.label;
         const confidence = prediction.score;
 
-        setOutput(`Verdict: ${verdict} ---> confidence: ${confidence}`);
+        setPrediction(prediction);
+        setOutput("");
       })
       .catch((error) => {
         console.error("Error:", error);
@@ -116,59 +114,98 @@ function App() {
       });
   };
 
-  const inputStyle = {
-    color: input === "your text here..." ? "gray" : "black",
-  };
-
   return (
     <>
-      <div className="mx-auto max-w-7xl sm:px-6 lg:px-8 mt-8">
+      <div className="mx-auto max-w-7xl sm:px-6 lg:px-8 mt-12">
         <Header />
-        <div className="mt-8">
-          <Select selected={language} setSelected={setLanguage} />
-        </div>
+        <SectionTitle label={"Input"} />
         <div className="mt-4">
-          <textarea
-            value={input}
-            onChange={handleInputChange}
-            onFocus={handleInputFocus}
-            style={inputStyle}
-            rows="3"
-            cols="50"
-          />
+          <Select selected={language} setSelected={setLanguage} />
+          <div class="mt-4">
+            <label
+              for="comment"
+              class="block text-sm font-medium leading-6 text-gray-900"
+            >
+              Add your text.
+            </label>
+            <div class="mt-4">
+              <textarea
+                value={input}
+                onChange={handleInputChange}
+                rows="4"
+                name="comment"
+                id="comment"
+                class="block w-full rounded-md border-0 p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+              ></textarea>
+            </div>
+          </div>
         </div>
-
-        <button className="button" onClick={handleSubmit}>
-          Submit
-        </button>
+        <Button className="mt-4" label="Submit" onClick={handleSubmit} />
 
         <div>
-          <div>
-            <button
-              className={`recording-button ${recording ? "recording" : ""}`}
-              //onClick={handleStartRecording} disabled={recording}
+          <div className="flex items-center justify-center">
+            <Button
+              className="mr-4 hover:bg-red-500 bg-red-600 text-white font-bold py-4 px-8 rounded-full"
               onMouseDown={handleStartRecording}
               onMouseUp={handleStopRecording}
               onTouchStart={handleStartRecording}
               onTouchEnd={handleStopRecording}
-            >
-              {/* {recording ? 'Release to stop' : 'Push to talk'} */}
-            </button>
-            {/* <button onClick={handleStopRecording} disabled={!recording}>
-          Stop recording
-        </button> */}
+              label={recording ? "Release to stop 🤐" : "Push to talk 🎤"}
+              style={{ minWidth: "140px" }}
+            ></Button>
+            <div>{audioURL && <audio src={audioURL} controls />}</div>
           </div>
-          <p>{recording ? "Release to stop" : "Push to talk"}</p>
-          <div>{audioURL && <audio src={audioURL} controls />}</div>
         </div>
-        <h1>Output</h1>
-        <p>{output}</p>
+        <SectionTitle label={"Analysis"} />
+        <div className="mt-4">
+          {prediction
+            ? `Verdict: ${prediction.label} ---> confidence: ${prediction.score}`
+            : output || "No prediction available"}
+        </div>
+        <div className="mt-4 flex items-center justify-center">
+          <img
+            src={blank}
+            alt="blank"
+            style={{ height: "150px", width: "150px" }}
+          />
+          <ProgressBar
+            score={prediction ? computeNormedScore(prediction) : 0}
+          />
+          <img
+            src={bard}
+            alt="bard"
+            style={{ height: "150px", width: "150px" }}
+          />
+        </div>
       </div>
     </>
   );
 }
 
 export default App;
+
+function SectionTitle({ label }) {
+  return (
+    <div class="mt-8 border-b border-gray-200 pb-5">
+      <h3 class="text-base font-semibold leading-6 text-gray-900">{label}</h3>
+    </div>
+  );
+}
+
+function Button({ label = "", className = "", ...props }) {
+  return (
+    <button
+      {...props}
+      type="button"
+      class={
+        className +
+        " rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+      }
+    >
+      {label}
+    </button>
+  );
+}
 
 function Header() {
   return (
@@ -268,4 +305,24 @@ function Select({ selected, setSelected }) {
       )}
     </Listbox>
   );
+}
+
+function ProgressBar({ score }) {
+  if (score === undefined) {
+    return <></>;
+  }
+  return (
+    <div class="mb-5 h-4 overflow-hidden rounded-full bg-gray-200 w-full">
+      <div
+        class="h-4 rounded-full bg-indigo-500"
+        style={{ width: `${score}%` }}
+      ></div>
+    </div>
+  );
+}
+
+function computeNormedScore(prediction) {
+  const signed =
+    prediction.score * 100 * (prediction.label === "Bard" ? 1 : -1);
+  return (signed + 100) / 2;
 }
