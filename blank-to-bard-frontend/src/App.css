@@ -3,7 +3,7 @@
 }
 
 .App-logo {
-  height: 20vmin;
+  height: 18vmin;
   pointer-events: none;
 }
 
@@ -15,12 +15,12 @@
 
 .App-header {
   background-color: #282c34;
-  min-height: 15vh;
+  min-height: 12vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
+  font-size: calc(9px + 2vmin);
   color: rgb(24, 194, 216);
 }
 
@@ -39,9 +39,47 @@
   outline: none;
 }
 
-.button-group {
+/* .button-group {
   margin: 10px 0;
+} */
+
+.button {
+  background-color: #282c34; /* matching your header's background color */
+  border: none;
+  color: #61dafb; /* matching your link's color */
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  transition-duration: 0.4s; /* smooth transition */
+  cursor: pointer;
+  padding: 15px 32px; /* size of the button */
+  border-radius: 4px; /* rounded corners */
 }
+
+.button:hover {
+  background-color: #61dafb; /* swap colors on hover */
+  color: #282c34;
+}
+
+.select {
+  width: 200px;
+  height: 35px;
+  color: #61dafb;
+  padding-left: 5px;
+  font-size: 14px;
+  border: none;
+  margin-left: 10px;
+  -webkit-appearance: none; /* This line can help with styling in Chrome */
+  background: #282c34 url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4 5"><path fill="%2361dafb" d="M2 0L0 2h4zm0 5L0 3h4z"/></svg>') no-repeat;
+  background-position: right .5em center;
+  background-size: 1.25em;
+}
+
+.select:focus {
+  outline: none;
+}
+
 
 .recording-button {
   margin-bottom: 20px;
@@ -73,3 +111,52 @@
     transform: rotate(360deg);
   }
 }
+
+.flip-card {
+  background-color: transparent;
+  width: 150px;
+  height: 150px;
+  perspective: 1000px;
+}
+
+.flip-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  transform-style: preserve-3d;
+  animation: flip 3s infinite;
+}
+
+@keyframes flip {
+  0% { transform: rotateY(0deg); }
+  50% { transform: rotateY(180deg); }
+  100% { transform: rotateY(360deg); }
+}
+
+.flip-card-front, .flip-card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+}
+
+.flip-card-front {
+  background-color: rgba(0, 0, 0, 0); /* 0 opacity makes it transparent */
+  color: black;
+}
+
+.flip-card-back {
+  background-color: rgba(0, 0, 0, 0); /* 0 opacity makes it transparent */
+  color: white;
+  transform: rotateY(180deg);
+}
+
+
+.flip-card-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
