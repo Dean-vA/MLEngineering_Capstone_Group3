@@ -9,6 +9,12 @@ from dotenv import load_dotenv
 import os
 import openai
 
+import torch
+import torch.nn as nn
+from PIL import Image
+from torch.nn import functional as F
+from torchvision import models, transforms
+
 app = FastAPI()
 load_dotenv()  # take environment variables from .env.
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
@@ -68,3 +74,30 @@ async def predict(text: Text):
     )
 
     return response.json()
+
+
+@app.post("/face_classifier/predict")
+async def face_predict(file: UploadFile = File(...)):
+
+    data_transforms = {
+        "api": transforms.Compose(
+            [
+                transforms.Resize((224, 224)),
+                transforms.ToTensor(),
+                transforms.Normalize(
+                    mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
+                ),
+            ]
+        ),
+    }
+    model = models.resnet50()
+    model.fc = nn.Sequential(
+        nn.Linear(2048, 128), nn.ReLU(inplace=True), nn.Linear(128, 2)
+    )
+    model.load_state_dict(torch.load("models/weights.pt"))
+    request = Image.open(file.file).convert("RGB")
+    request_transformed = data_transforms["api"](request)
+    pred = model(request_transformed.unsqueeze(0))
+    pred_probs = F.softmax(pred, dim=1)
+    prob_negative, prob_positive = pred_probs.detach().numpy()[0]
+    return {"prediction": 1} if prob_positive > prob_negative else {"prediction": 0}
