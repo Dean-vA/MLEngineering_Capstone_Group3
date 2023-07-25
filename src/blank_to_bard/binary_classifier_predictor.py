@@ -66,6 +66,7 @@ class CustomPredictor(Predictor):
         # Apply softmax to the array
         print(prediction_results)
         output_softmax = tf.nn.softmax(prediction_results['logits'][0]).numpy()
+        output_softmax_list = output_softmax.tolist()
         print(output_softmax)
         # Take the class with the highest score
         prediction = np.argmax(output_softmax)
@@ -77,6 +78,6 @@ class CustomPredictor(Predictor):
             prediction = "Bard"
         print(prediction)
         # Return the label (0: Blank or 1: Bard) and the score (between 0 and 1)
-        prediction_results = {"label": prediction, "score": str(confidence)}
+        prediction_results = {"label": prediction, "score": str(confidence), "softmax": output_softmax_list}
 
         return prediction_results
