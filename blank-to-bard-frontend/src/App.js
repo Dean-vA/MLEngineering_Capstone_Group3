@@ -152,7 +152,7 @@ function App() {
               onTouchStart={handleStartRecording}
               onTouchEnd={handleStopRecording}
               label={recording ? "Release to stop 🤐" : "Push to talk 🎤"}
-              style={{ minWidth: "140px" }}
+              style={{ minWidth: "140px", userSelect: "none"}}
             ></Button>
             <div>{audioURL && <audio src={audioURL} controls />}</div>
           </div>
@@ -171,6 +171,7 @@ function App() {
           />
           <ProgressBar
             score={prediction ? computeNormedScore(prediction) : 0}
+            label={prediction ? prediction.label : ""}
           />
           <img
             src={bard}
@@ -308,22 +309,48 @@ function Select({ selected, setSelected }) {
   );
 }
 
-function ProgressBar({ score }) {
-  if (score === undefined) {
+function ProgressBar({ score, label }) {
+  if (score === undefined || score < 50 || score > 100) {
     return <></>;
   }
+
+  let bardWidth, blankWidth;
+
+  if (label === "Bard") {
+    bardWidth = `${(score - 50)}%`;
+    blankWidth = `${100 - score}%`;
+  } else {
+    blankWidth = `${(score - 50)}%`;
+    bardWidth = `${100 - score}%`;
+  }
+
   return (
-    <div class="mb-5 h-4 overflow-hidden rounded-full bg-gray-200 w-full">
-      <div
-        class="h-4 rounded-full bg-indigo-500"
-        style={{ width: `${score}%` }}
-      ></div>
+    <div className="h-4 w-full bg-gray-200 relative" style={{ overflow: 'hidden', borderRadius: '8px' }}>
+      <div 
+        className="h-full bg-red-500 transition-all duration-500 absolute"
+        style={{ 
+          width: blankWidth,
+          left: "50%",
+          transform: "translateX(-100%)",
+          borderRadius: "8px 0 0 8px"
+        }}
+      />
+      <div 
+        className="h-full bg-indigo-500 transition-all duration-500 absolute"
+        style={{ 
+          width: bardWidth,
+          right: "50%",
+          transform: "translateX(100%)",
+          borderRadius: "0 8px 8px 0"
+        }}
+      />
     </div>
   );
 }
 
+
+
 function computeNormedScore(prediction) {
-  const signed =
-    prediction.score * 100 * (prediction.label === "Bard" ? 1 : -1);
-  return (signed + 100) / 2;
+  return Math.abs(prediction.score * 100);
 }
+
