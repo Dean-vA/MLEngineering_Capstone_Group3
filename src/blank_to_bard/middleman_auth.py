@@ -1,17 +1,19 @@
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi import FastAPI, UploadFile, File
-from google.auth import default
-from google.auth.transport import requests as grequests
-import requests
+import io
 import json
-from pydantic import BaseModel
-from dotenv import load_dotenv
 import os
-import openai
 
+import openai
+import requests
 import torch
 import torch.nn as nn
+from dotenv import load_dotenv
+from fastapi import FastAPI, File, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
+from google.auth import default
+from google.auth.transport import requests as grequests
+from google.cloud import storage
 from PIL import Image
+from pydantic import BaseModel
 from torch.nn import functional as F
 from torchvision import models, transforms
 
@@ -20,21 +22,27 @@ load_dotenv()  # take environment variables from .env.
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 openai.api_key = OPENAI_API_KEY
 
+
 class Text(BaseModel):
     text: str
+
 
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://blank-to-bard-frontend-dlkyfi4jza-uc.a.run.app"],  # Change this to the actual URL of your frontend
+    allow_origins=[
+        "https://blank-to-bard-frontend-dlkyfi4jza-uc.a.run.app"
+    ],  # Change this to the actual URL of your frontend
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+
 @app.get("/")
 async def root():
     return {"message": "Welcome to the auth middleman blank-to-bard API!"}
+
 
 @app.post("/transcribe/{language}")
 async def transcribe_audio(audio: UploadFile = File(...), language: str = "en"):
@@ -42,15 +50,16 @@ async def transcribe_audio(audio: UploadFile = File(...), language: str = "en"):
     with open("temp_audio.mp3", "wb") as buffer:
         buffer.write(await audio.read())
 
-     # Transcribe the audio
+    # Transcribe the audio
     with open("temp_audio.mp3", "rb") as audio_file:
         result = openai.Audio.transcribe("whisper-1", audio_file, language=language)
 
     return {"transcription": result["text"]}
 
+
 @app.post("/classifier/predict")
 async def predict(text: Text):
-    print('incoming request: ', text)
+    print("incoming request: ", text)
     # Generate access token
     credentials, project = default()
     auth_request = grequests.Request()
@@ -58,17 +67,17 @@ async def predict(text: Text):
     access_token = credentials.token
     # Prepare the data in the required format
     data = {
-        'instances': [{'text': str(text.text)}],
+        "instances": [{"text": str(text.text)}],
     }
-    print('data: ', data)
+    print("data: ", data)
     # Send request to Vertex AI
-    project_id = '260219834114'
-    endpoint_id = '5000042321450893312'
+    project_id = "260219834114"
+    endpoint_id = "5000042321450893312"
     response = requests.post(
-        f'https://europe-west4-aiplatform.googleapis.com/v1/projects/{project_id}/locations/europe-west4/endpoints/{endpoint_id}:predict',
+        f"https://europe-west4-aiplatform.googleapis.com/v1/projects/{project_id}/locations/europe-west4/endpoints/{endpoint_id}:predict",
         headers={
-            'Authorization': f'Bearer {access_token}',
-            'Content-Type': 'application/json',
+            "Authorization": f"Bearer {access_token}",
+            "Content-Type": "application/json",
         },
         data=json.dumps(data),
     )
@@ -78,6 +87,20 @@ async def predict(text: Text):
 
 @app.post("/face_classifier/predict")
 async def face_predict(file: UploadFile = File(...)):
+    def load_weights_from_gcs(bucket_name, folder_name, file_name):
+        storage_client = storage.Client("blank-to-bard")
+        bucket = storage_client.bucket(bucket_name)
+        blob = bucket.blob(f"{folder_name}/{file_name}")
+        weights_bytes = blob.download_as_bytes()
+        buffer = io.BytesIO(weights_bytes)
+        model_state_dict = torch.load(buffer)
+        return model_state_dict
+
+    bucket_name = "blank-to-bard"
+    folder_name = "face_reco"
+    file_name = "weights.pt"
+
+    model_state_dict = load_weights_from_gcs(bucket_name, folder_name, file_name)
 
     data_transforms = {
         "api": transforms.Compose(
@@ -94,7 +117,7 @@ async def face_predict(file: UploadFile = File(...)):
     model.fc = nn.Sequential(
         nn.Linear(2048, 128), nn.ReLU(inplace=True), nn.Linear(128, 2)
     )
-    model.load_state_dict(torch.load("models/weights.pt"))
+    model.load_state_dict(model_state_dict)
     request = Image.open(file.file).convert("RGB")
     request_transformed = data_transforms["api"](request)
     pred = model(request_transformed.unsqueeze(0))
