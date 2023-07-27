@@ -196,7 +196,7 @@ function App() {
   const handleSubmit = () => {
     setLimeWords([]);
     setLlmOutput({  errors_classification: "", classification_rationale: "", correction: "", correction_rationale: "" });
-    setPrediction(null);
+    //setPrediction(null);
     setOutput("Loading...");
     const words = input.split(' ');
     const scoredWords = words.map(word => ({
