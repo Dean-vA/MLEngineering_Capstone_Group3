@@ -1,4 +1,6 @@
 from fastapi.middleware.cors import CORSMiddleware
+import io
+from google.cloud import storage
 from fastapi import FastAPI, UploadFile, File
 from google.auth import default
 from google.auth.transport import requests as grequests
@@ -79,6 +81,21 @@ async def predict(text: Text):
 @app.post("/face_classifier/predict")
 async def face_predict(file: UploadFile = File(...)):
 
+    def load_weights_from_gcs(bucket_name, folder_name, file_name):
+        storage_client = storage.Client("blank-to-bard")
+        bucket = storage_client.bucket(bucket_name)
+        blob = bucket.blob(f"{folder_name}/{file_name}")
+        weights_bytes = blob.download_as_bytes()
+        buffer = io.BytesIO(weights_bytes)
+        model_state_dict = torch.load(buffer)
+        return model_state_dict
+    
+    bucket_name = "blank-to-bard"
+    folder_name = "face_reco"
+    file_name = "weights.pt"
+
+    model_state_dict = load_weights_from_gcs(bucket_name, folder_name, file_name)
+
     data_transforms = {
         "api": transforms.Compose(
             [
@@ -94,7 +111,7 @@ async def face_predict(file: UploadFile = File(...)):
     model.fc = nn.Sequential(
         nn.Linear(2048, 128), nn.ReLU(inplace=True), nn.Linear(128, 2)
     )
-    model.load_state_dict(torch.load("models/weights.pt"))
+    model.load_state_dict(model_state_dict)
     request = Image.open(file.file).convert("RGB")
     request_transformed = data_transforms["api"](request)
     pred = model(request_transformed.unsqueeze(0))
