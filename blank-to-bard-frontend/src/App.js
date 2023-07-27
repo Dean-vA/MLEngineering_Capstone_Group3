@@ -21,6 +21,21 @@ function App() {
   const webcamRef = React.useRef(null);
   const [predictionResult, setPredictionResult] = React.useState(null);
 
+  const ShadesOfGreen = {
+    0: 'bg-green-50',
+    1: 'bg-green-100',
+    2: 'bg-green-200',
+    3: 'bg-green-300',
+    4: 'bg-green-400',
+    5: 'bg-green-500',
+    6: 'bg-green-600',
+    7: 'bg-green-700',
+    8: 'bg-green-800',
+    9: 'bg-green-900'
+  };
+  
+  const [scoredWords, setScoredWords] = useState([]);
+
 
   const capture = React.useCallback(
     () => {
@@ -55,13 +70,13 @@ function App() {
     
     console.log("Request Data: ", data);
 
-    await fetch(`http://localhost:8080/predict/`, {
+    await fetch(`https://middleman-auth-dlkyfi4jza-uc.a.run.app/face_classifier/predict`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
-      body: data,
-      //body: JSON.stringify(data),
+      body: imgdata,
+      //body: data,
     })
     .then((response) => {
       console.log("Response status:", response.status);
@@ -82,6 +97,7 @@ function App() {
     .catch((error) => {
       console.error("Error:", error);
     });
+    // setLoggedIn(true);
 
   };
 
@@ -166,6 +182,14 @@ function App() {
   };
 
   const handleSubmit = () => {
+    const words = input.split(' ');
+    const scoredWords = words.map(word => ({
+      word,
+      score: Math.floor(Math.random() * 10),
+    }));
+
+    setScoredWords(scoredWords);
+    console.log("Scored words:", scoredWords);
     const url =
       "https://middleman-auth-dlkyfi4jza-uc.a.run.app/classifier/predict";
     const data = { text: input };
@@ -258,7 +282,16 @@ function App() {
           </div>
         </div>
         <SectionTitle label={"Analysis"} />
-        <div className="mt-4">
+        <div className="mt-4 flex items-center justify-center">
+          <p>
+            {scoredWords.map(({ word, score }, index) => (
+              <span key={index} className={`p-1 ${ShadesOfGreen[score]} m-1 rounded`}>
+                {word}
+              </span>
+            ))}
+          </p>
+        </div>
+        <div className="mt-4 flex items-center justify-center">
           {prediction
             ? `Verdict: ${prediction.label} ---> confidence: ${prediction.score}`
             : output || "No prediction available"}
