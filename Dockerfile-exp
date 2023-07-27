@@ -1,0 +1,25 @@
+FROM python:3.9-slim-buster
+
+RUN apt-get update && \
+    apt-get install -y \
+    python3 \
+    libc++-dev \
+    build-essential \
+    python3-pip \
+    # Removes apt cache to reduce image size, since the apt cache is not stored
+    # in a layer
+    && rm -rf /var/lib/apt/lists/*
+
+RUN pip3 install --upgrade pip
+
+RUN pip install fastapi transformers lime pydantic
+
+WORKDIR /app
+
+COPY ./src/blank_to_bard/explainability_app.py /app
+
+ENV PORT 10002
+
+EXPOSE ${PORT}
+
+CMD ["uvicorn", "explainability_app:app", "--host", "0.0.0.0", "--port", ${PORT}]
