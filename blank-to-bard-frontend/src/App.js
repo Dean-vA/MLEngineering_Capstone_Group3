@@ -14,6 +14,38 @@ function App() {
   const [language, setLanguage] = useState({ id: "en", name: "English" });
   const [user, setUser] = useState('Unknown User');
 
+  const [loggedIn, setLoggedIn] = useState(false);
+
+  // Login function
+  const handleLogin = async () => {
+    // Use fetch to send the audio file to your server
+    //await fetch(`${process.env.REACT_APP_STT_APP_API_URL}/transcribe`, {
+    await fetch(
+      `https://middleman-auth-dlkyfi4jza-uc.a.run.app//face_classifier/predict/`,
+      {
+        method: "POST",
+        body: data,
+      }
+    )
+      .then((response) => response.json())
+      .then((result) => {
+        console.log("Success:", result);
+
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  
+    // if successful, set the loggedIn state to true
+    setLoggedIn(true);
+  };
+
+  // Register face function placeholder
+  const handleRegisterFace = () => {
+    alert('Registering face...');
+  };
+    
+
   const handleStartRecording = () => {
     setOutput("");
     // Create a new MediaRecorder instance.
@@ -115,6 +147,16 @@ function App() {
       });
   };
 
+  // Conditional rendering
+  if (!loggedIn) {
+    return (
+      <div className="flex flex-col justify-center items-center min-h-screen space-y-4">
+        <Button className="mt-4" label="Login" onClick={handleLogin}  />
+        <Button className="mt-4 bg-green-600 hover:bg-green-500" label="Register Face" onClick={handleRegisterFace}  />
+      </div>
+    );
+  }
+
   return (
     <>
       <div className="mx-auto max-w-7xl sm:px-6 lg:px-8 mt-12">
@@ -141,7 +183,7 @@ function App() {
             </div>
           </div>
         </div>
-        <Button className="mt-4" label="Submit" onClick={handleSubmit} />
+        <Button className="mt-4 px-4" label="Submit" onClick={handleSubmit} />
 
         <div>
           <div className="flex items-center justify-center">
@@ -154,6 +196,8 @@ function App() {
               label={recording ? "Release to stop 🤐" : "Push to talk 🎤"}
               style={{ minWidth: "140px", userSelect: "none"}}
             ></Button>
+          </div>
+          <div className="flex items-center justify-center">
             <div>{audioURL && <audio src={audioURL} controls />}</div>
           </div>
         </div>
