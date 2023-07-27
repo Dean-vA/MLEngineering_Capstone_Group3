@@ -1,5 +1,5 @@
 from fastapi.middleware.cors import CORSMiddleware
-import io
+#import io
 #from google.cloud import storage
 from fastapi import FastAPI, UploadFile, File
 from google.auth import default
@@ -10,6 +10,14 @@ from pydantic import BaseModel
 from dotenv import load_dotenv
 import os
 import openai
+#import the List class from typing module
+from typing import List
+from lime import lime_text
+import numpy as np
+from langchain import LLMChain
+from langchain.prompts import PromptTemplate
+from langchain.llms import OpenAI
+import llm_explainability_prompt
 
 #import torch
 #import torch.nn as nn
@@ -41,6 +49,10 @@ app.add_middleware(
 async def root():
     return {"message": "Welcome to the auth middleman blank-to-bard API!"}
 
+@app.get("/health")
+def health_check():
+    return {"status": "Healthy"}
+
 @app.post("/transcribe/{language}")
 async def transcribe_audio(audio: UploadFile = File(...), language: str = "en"):
     # Save temporary audio file
@@ -54,7 +66,7 @@ async def transcribe_audio(audio: UploadFile = File(...), language: str = "en"):
     return {"transcription": result["text"]}
 
 @app.post("/classifier/predict")
-async def predict(text: Text):
+def predict(text: Text):
     print('incoming request: ', text)
     # Generate access token
     credentials, project = default()
@@ -79,6 +91,60 @@ async def predict(text: Text):
     )
 
     return response.json()
+
+@app.post("/classifier/explain")
+def explain_lime(text: Text):
+    print(text.text)
+
+    class_names = ['blank', 'bard']
+
+    def prediction_probs(texts: List[str]):
+        probabilities = []
+        for text in texts:
+            try:
+                # Run the predict function and wait for it to complete
+                result = predict(Text(text=text))
+                # Extract the probability scores from the result
+                scores = [prediction['softmax'] for prediction in result['predictions']]
+                scores = [item for sublist in scores for item in sublist]
+                probabilities.append(scores)
+                print(f"Predicted probabilities: {probabilities}")
+            except Exception as e:
+                print(f"An error occurred while predicting: {str(e)}")
+                # Handle the error appropriately, 
+                # for example by appending a default value to the probabilities list
+                probabilities.append([0, 0])
+
+        return np.array(probabilities)
+
+    explainer = lime_text.LimeTextExplainer(class_names=class_names)
+    explanation = explainer.explain_instance(text.text, prediction_probs, num_samples=10)
+
+    weightage = explanation.as_list()
+
+    # sort the weightage list based on the order of words in the sentence
+    weightage.sort(key=lambda x: text.text.index(x[0]))
+
+    return {'weightage': weightage}
+
+
+@app.post("/classifier/explain/llm")
+def explain_llm(text: Text):
+	llm = OpenAI(temperature=0.7, model_name="gpt-4")
+
+	question = text.text
+
+	prompt_template = llm_explainability_prompt.PROMPT_PREFIX + question + llm_explainability_prompt.PROMPT_SUFFIX
+	prompt = PromptTemplate(template=prompt_template, input_variables=[])
+
+	chain = LLMChain(prompt=prompt,llm=llm)
+
+	pred = chain.predict()
+
+	try:
+		return json.loads(pred)
+	except ValueError:
+		return dict()
 
 
 @app.post("/face_classifier/predict")

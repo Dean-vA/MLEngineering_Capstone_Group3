@@ -20,6 +20,7 @@ function App() {
 
   const webcamRef = React.useRef(null);
   const [predictionResult, setPredictionResult] = React.useState(null);
+  const [limeWords, setLimeWords] = useState([]);
 
   const ShadesOfGreen = {
     0: 'bg-green-50',
@@ -28,14 +29,19 @@ function App() {
     3: 'bg-green-300',
     4: 'bg-green-400',
     5: 'bg-green-500',
-    6: 'bg-green-600',
-    7: 'bg-green-700',
-    8: 'bg-green-800',
-    9: 'bg-green-900'
+  };
+  
+  const ShadesOfRed = {
+    0: 'bg-red-50',
+    1: 'bg-red-100',
+    2: 'bg-red-200',
+    3: 'bg-red-300',
+    4: 'bg-red-400',
+    5: 'bg-red-500',
   };
   
   const [scoredWords, setScoredWords] = useState([]);
-
+  const [limeResults, setLimeResults] = useState([]);
 
   const capture = React.useCallback(
     () => {
@@ -97,7 +103,7 @@ function App() {
     .catch((error) => {
       console.error("Error:", error);
     });
-    //setLoggedIn(true);
+    setLoggedIn(true);
 
   };
 
@@ -214,6 +220,56 @@ function App() {
         console.error("Error:", error);
         setOutput("Error occurred while making prediction.");
       });
+
+      //Explanability
+      const url2 =
+        "https://middleman-auth-dlkyfi4jza-uc.a.run.app/classifier/explain";
+      console.log("Request Data: ", data);
+      fetch(url2, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          // Save the LIME results in the state
+          // setLimeResults(data.weightage);
+      
+          const limeWords = data.weightage.map(([ word, weight ]) => {
+            let score = Math.round(Math.abs(weight) * 10);
+            let direction = weight >= 0 ? 'positive' : 'negative';
+            return { word, score, direction };
+          });
+      
+          setLimeWords(limeWords);
+
+          console.log("Lime words:", limeWords);
+      })
+      .catch((error) => {
+          console.error("Error:", error);
+          setOutput("Error occurred while making prediction.");
+      });
+
+      const url3 =
+        "https://middleman-auth-dlkyfi4jza-uc.a.run.app/classifier/explain/llm";
+      console.log("Request Data: ", data);
+      fetch(url2, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+
+      })
+      .catch((error) => {
+          console.error("Error:", error);
+          setOutput("Error occurred while making prediction.");
+      });
   };
 
   // Conditional rendering
@@ -282,10 +338,21 @@ function App() {
           </div>
         </div>
         <SectionTitle label={"Analysis"} />
-        <div className="mt-4 flex items-center justify-center">
+        {/* <div className="mt-4 flex items-center justify-center">
           <p>
             {scoredWords.map(({ word, score }, index) => (
               <span key={index} className={`p-1 ${ShadesOfGreen[score]} m-1 rounded`}>
+                {word}
+              </span>
+            ))}
+          </p>
+        </div> */}
+        <div className="mt-4 flex items-center justify-center">
+          <p>
+            {limeWords.map(({ word, score, direction }, index) => (
+              <span 
+                key={index} 
+                className={`p-1 ${direction === 'positive' ? ShadesOfGreen[score] : ShadesOfRed[score]} m-1 rounded`}>
                 {word}
               </span>
             ))}
