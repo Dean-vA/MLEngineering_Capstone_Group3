@@ -35,7 +35,7 @@ async def root():
 def health_check():
     return {"status": "Healthy"}
 
-@app.post("/explainability/lime")
+@app.post("/explainability")
 async def explain_lime(request: LIMERequest):
 	print(request.text)
 	print(request.probs)
@@ -44,10 +44,11 @@ async def explain_lime(request: LIMERequest):
 	if len(request.probs) != 2 or not request.text:
 		return dict()
 
-	probs = np.array(request.probs)
+	def prediction_probs(_: str):
+		return np.array(request.probs)
 
 	explainer = lime_text.LimeTextExplainer(class_names=class_names)
-	explanation = explainer.explain_instance(t, predict)
+	explanation = explainer.explain_instance(request.text, prediction_probs)
 	
 	weightage = explanation.as_list()
 	
