@@ -12,11 +12,13 @@ RUN apt-get update && \
 
 RUN pip3 install --upgrade pip
 
-RUN pip install fastapi transformers lime pydantic
+RUN pip install fastapi python-dotenv uvicorn
+RUN pip install transformers lime pydantic langchain openai
 
 WORKDIR /app
 
 COPY ./src/blank_to_bard/explainability_app.py /app
+COPY .env /app
 
 ENV PORT 10002
 
