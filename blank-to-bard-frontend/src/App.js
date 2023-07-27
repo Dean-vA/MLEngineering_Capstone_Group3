@@ -196,7 +196,8 @@ function App() {
   const handleSubmit = () => {
     setLimeWords([]);
     setLlmOutput({  errors_classification: "", classification_rationale: "", correction: "", correction_rationale: "" });
-
+    setPrediction(null);
+    setOutput("Loading...");
     const words = input.split(' ');
     const scoredWords = words.map(word => ({
       word,
@@ -388,14 +389,14 @@ function App() {
             style={{ height: "150px", width: "150px" }}
           />
         </div>
-        <div className="p-6 max-w-sm mx-auto bg-white rounded-xl shadow-md flex items-center space-x-4">
-          <div>
-            <div className="text-xl font-medium text-black">GPT4 Analysis</div>
-            <p className="text-xl font-medium text-black">Errors Classification: {llmOutput.errors_classification.toString()}</p>
-            <p className="text-gray-500">Classification Rationale: {llmOutput.classification_rationale}</p>
-            <p className="text-gray-500">Correction: {llmOutput.correction}</p>
-            <p className="text-gray-500">Correction Rationale: {llmOutput.correction_rationale}</p>
-          </div>
+        <div className="p-3 max-w-sm mx-auto bg-white rounded-xl shadow-md flex items-center space-x-4">
+        <div className="mb-4">
+          <div className="text-xl font-medium text-black mb-4">GPT4 Analysis</div>
+          <p className="text-xl font-medium text-gray-500 mb-4">Errors Classification: {llmOutput.errors_classification.toString()}</p>
+          <p className="text-gray-500 mb-4">Classification Rationale: {llmOutput.classification_rationale}</p>
+          <p className="text-gray-500 mb-4">Correction: {llmOutput.correction}</p>
+          <p className="text-gray-500 mb-4">Correction Rationale: {llmOutput.correction_rationale}</p>
+        </div>
         </div>
       </div>
     </>
