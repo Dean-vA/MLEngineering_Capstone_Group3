@@ -1,7 +1,8 @@
 FROM python:3.9-slim-buster
 
 RUN pip install fastapi uvicorn python-multipart google-auth google-auth-httplib2 google-auth-oauthlib google-api-python-client
-RUN pip install python-dotenv openai torch torchvision pillow
+RUN pip install python-dotenv openai 
+#torch torchvision pillow
 
 WORKDIR /app
 

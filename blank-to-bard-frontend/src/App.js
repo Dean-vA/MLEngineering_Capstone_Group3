@@ -97,7 +97,7 @@ function App() {
     .catch((error) => {
       console.error("Error:", error);
     });
-    // setLoggedIn(true);
+    //setLoggedIn(true);
 
   };
 
@@ -311,6 +311,11 @@ function App() {
             alt="bard"
             style={{ height: "150px", width: "150px" }}
           />
+        </div>
+        <div className="mt-4 flex items-center justify-center">
+          <p>
+              "gpt response here"
+          </p>
         </div>
       </div>
     </>

@@ -12,7 +12,7 @@ class RequestModel(BaseModel):
 app = FastAPI()
 
 predictor = CustomPredictor()
-predictor.load('gs://blank-to-bard-models/binary_classifier/')
+predictor.load('gs://blank-to-bard-models/face_reco/')
 #predictor.load(r'C:\Users\aswegen.d\Dropbox\0_Buas\Courses\ML Engineering Masterclass\Capstone\MLEngineering_Capstone_Group3\models\face_reco')
 
 # Add CORS middleware

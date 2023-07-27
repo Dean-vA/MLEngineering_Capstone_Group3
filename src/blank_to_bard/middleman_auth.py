@@ -1,6 +1,6 @@
 from fastapi.middleware.cors import CORSMiddleware
 import io
-from google.cloud import storage
+#from google.cloud import storage
 from fastapi import FastAPI, UploadFile, File
 from google.auth import default
 from google.auth.transport import requests as grequests
@@ -11,11 +11,11 @@ from dotenv import load_dotenv
 import os
 import openai
 
-import torch
-import torch.nn as nn
-from PIL import Image
-from torch.nn import functional as F
-from torchvision import models, transforms
+#import torch
+#import torch.nn as nn
+#from PIL import Image
+#from torch.nn import functional as F
+#from torchvision import models, transforms
 
 app = FastAPI()
 load_dotenv()  # take environment variables from .env.
@@ -96,7 +96,7 @@ async def face_predict(base64image: Image):
     # print('data: ', data)
     # Send request to Vertex AI
     project_id = '260219834114'
-    endpoint_id = '5000042321450893312'
+    endpoint_id = '1464927720197586944'
     response = requests.post(
         f'https://europe-west4-aiplatform.googleapis.com/v1/projects/{project_id}/locations/europe-west4/endpoints/{endpoint_id}:predict',
         headers={
