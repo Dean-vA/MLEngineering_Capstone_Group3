@@ -21,6 +21,12 @@ function App() {
   const webcamRef = React.useRef(null);
   const [predictionResult, setPredictionResult] = React.useState(null);
   const [limeWords, setLimeWords] = useState([]);
+  const [llmOutput, setLlmOutput] = useState({
+    errors_classification: "",
+    classification_rationale: "",
+    correction: "",
+    correction_rationale: ""
+  });
 
   const ShadesOfGreen = {
     0: 'bg-green-50',
@@ -255,7 +261,7 @@ function App() {
       const url3 =
         "https://middleman-auth-dlkyfi4jza-uc.a.run.app/classifier/explain/llm";
       console.log("Request Data: ", data);
-      fetch(url2, {
+      fetch(url3, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -264,7 +270,7 @@ function App() {
       })
         .then((response) => response.json())
         .then((data) => {
-
+          setLlmOutput(data);
       })
       .catch((error) => {
           console.error("Error:", error);
@@ -379,10 +385,13 @@ function App() {
             style={{ height: "150px", width: "150px" }}
           />
         </div>
-        <div className="mt-4 flex items-center justify-center">
-          <p>
-              "gpt response here"
-          </p>
+        <div className="p-6 max-w-sm mx-auto bg-white rounded-xl shadow-md flex items-center space-x-4">
+          <div>
+            <div className="text-xl font-medium text-black">Errors Classification: {llmOutput.errors_classification.toString()}</div>
+            <p className="text-gray-500">Classification Rationale: {llmOutput.classification_rationale}</p>
+            <p className="text-gray-500">Correction: {llmOutput.correction}</p>
+            <p className="text-gray-500">Correction Rationale: {llmOutput.correction_rationale}</p>
+          </div>
         </div>
       </div>
     </>
