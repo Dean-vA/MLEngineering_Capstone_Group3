@@ -3,6 +3,8 @@ import bard from "./bard_transparent.png";
 import blank from "./blank_transparent.png";
 import { Listbox, Transition } from "@headlessui/react";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
+import Webcam from "react-webcam";
+
 
 function App() {
   const [input, setInput] = useState("");
@@ -16,28 +18,71 @@ function App() {
 
   const [loggedIn, setLoggedIn] = useState(false);
 
+  const webcamRef = React.useRef(null);
+  const [predictionResult, setPredictionResult] = React.useState(null);
+
+
+  const capture = React.useCallback(
+    () => {
+      if (webcamRef.current && webcamRef.current.getScreenshot) {
+        const imageSrc = webcamRef.current.getScreenshot();
+        return imageSrc;
+      }
+      return null;
+    },
+    [webcamRef]
+  );
+
   // Login function
   const handleLogin = async () => {
-    // Use fetch to send the audio file to your server
-    //await fetch(`${process.env.REACT_APP_STT_APP_API_URL}/transcribe`, {
-    await fetch(
-      `https://middleman-auth-dlkyfi4jza-uc.a.run.app//face_classifier/predict/`,
-      {
-        method: "POST",
-        body: data,
-      }
-    )
-      .then((response) => response.json())
-      .then((result) => {
-        console.log("Success:", result);
+    const imageSrc = capture();
 
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-      });
-  
-    // if successful, set the loggedIn state to true
-    setLoggedIn(true);
+    // If there's no image, don't proceed
+    if (!imageSrc) {
+        console.error("No image captured");
+        return;
+    }
+
+    var base64Image = imageSrc.split(',')[1];
+    const imgdata = JSON.stringify({ image : base64Image });
+    var data = JSON.stringify({
+      "instances": [
+        {
+          "image": base64Image
+        }
+      ]
+    });
+    
+    console.log("Request Data: ", data);
+
+    await fetch(`http://localhost:8080/predict/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: data,
+      //body: JSON.stringify(data),
+    })
+    .then((response) => {
+      console.log("Response status:", response.status);
+      return response.json(); // This returns a promise
+    })
+    .then((result) => {
+      console.log("Response content:", result);
+      // Update the prediction result state variable
+      setPredictionResult(result.predictions[0].prediction);
+      // Only set loggedIn to true if the server's prediction was 1
+      if (result.predictions[0].prediction === 1) {
+        setLoggedIn(true);
+      }
+      if (result.predictions[0].prediction === 0) {
+        alert("Face not recognized. Please try again.");
+      }
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+    });
+
   };
 
   // Register face function placeholder
@@ -124,7 +169,7 @@ function App() {
     const url =
       "https://middleman-auth-dlkyfi4jza-uc.a.run.app/classifier/predict";
     const data = { text: input };
-
+    console.log("Request Data: ", data);
     fetch(url, {
       method: "POST",
       headers: {
@@ -151,11 +196,22 @@ function App() {
   if (!loggedIn) {
     return (
       <div className="flex flex-col justify-center items-center min-h-screen space-y-4">
+        <Webcam
+          audio={false}
+          ref={webcamRef}
+          screenshotFormat="image/jpeg"
+        />
         <Button className="mt-4" label="Login" onClick={handleLogin}  />
         <Button className="mt-4 bg-green-600 hover:bg-green-500" label="Register Face" onClick={handleRegisterFace}  />
+  
+        {/* Display the prediction result */}
+        {predictionResult !== null && (
+          <p>Prediction result: {predictionResult}</p>
+        )}
       </div>
     );
   }
+  
 
   return (
     <>

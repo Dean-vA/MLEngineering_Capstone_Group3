@@ -2,12 +2,14 @@ from google.cloud import aiplatform
 
 # Provide your bucket name and file name
 bucket_name = 'blank-to-bard-models'
-model_path = 'binary_classifier'
+#model_path = 'binary_classifier'
+model_path = 'face_reco'
 
 # Define your project ID and model name
 project_id = 'nodal-magnet-392617'
-model_name = 'blank-to-bard-classifier'
-container_image_uri = 'europe-west4-docker.pkg.dev/nodal-magnet-392617/deanis/blanktobard-classifier:latest'
+#model_name = 'blank-to-bard-classifier'
+model_name = 'blank-to-bard-face-reco'
+container_image_uri = 'europe-west4-docker.pkg.dev/nodal-magnet-392617/deanis/blanktobard-facereco:latest'
 location = 'europe-west4'   
 artifact_uri = f'gs://{bucket_name}/{model_path}' 
 
