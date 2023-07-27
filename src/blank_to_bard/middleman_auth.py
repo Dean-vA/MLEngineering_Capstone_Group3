@@ -122,10 +122,14 @@ def explain_lime(text: Text):
 
     weightage = explanation.as_list()
 
+    # Split the text into a list of words
+    words = text.text.split()
+
     # sort the weightage list based on the order of words in the sentence
-    weightage.sort(key=lambda x: text.text.index(x[0]))
+    weightage.sort(key=lambda x: words.index(x[0]) if x[0] in words else len(words))
 
     return {'weightage': weightage}
+
 
 
 @app.post("/classifier/explain/llm")
